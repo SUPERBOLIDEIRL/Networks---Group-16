@@ -12,19 +12,31 @@ using namespace std;
         private:
                 int ClientSocket;
                 int portNum;
+		const char* username;
+                const char* password;
+
         public:
-		 myClient(int port_num)
+		 myClient(int port_num, const char* name, const char* password )
                 {
                         int clt_socket = setClientSocket();
 			cout << clt_socket << endl; //testing
                         int prt_num = setPortNumber(port_num);
 			cout << prt_num << endl; //testing
+
+			const char* myUsername = setUsername(name);
+                        cout << myUsername << endl; //testing
+                        const char* myPassword = setPassword(password);
+                        cout << myPassword << endl; //testing
+
                 }
 
 		myClient()
 		{
 			ClientSocket = 0;
 			portNum = 0;
+			username = "Enter your name here....";
+                        password = "Enter your password here...";
+
 		}
 
                 int setClientSocket()
@@ -47,7 +59,20 @@ using namespace std;
                         return portNum;
                 }
 
-		string Message(const char* message)
+		const char* setUsername(const char* name)
+                {
+                        username = name;
+                        return username;
+                }
+
+                const char* setPassword(const char* Password)
+                {
+                        password = Password;
+                        return password;
+                }
+
+
+		const char* Message(const char* message)
 		{
 			if (strlen(message) > 1024)
 				return ""; //throw exception or error
@@ -55,12 +80,42 @@ using namespace std;
 				return message;
 		}
 
+
+
+		int sendLoginsToServer()
+                {
+                        //application layer protocol
+			char* temp;
+			strcpy (temp, this->username);
+			const char* LoginsInfo = strncat(temp, this->password, 1024);
+			if (send(this->ClientSocket, LoginsInfo, strlen(LoginsInfo), 0) == -1)
+			{
+				close(this->ClientSocket);
+				cout << "Falied to send login info" << endl;
+				return -1;
+			}
+			else
+			{
+				char ConfirmationMessage[256] = {0};
+                       	        if (recv(this->ClientSocket, ConfirmationMessage, 255, 0) == -1)
+                       	        {
+                               		 close(this->ClientSocket);
+                               		 cout << "Login Unsuccessful" << endl;
+                               		 return -1;
+                       		}
+                       		else
+                                {	 cout << ConfirmationMessage << endl;
+					 return 0;
+				}
+
+			}
+                }
+
 		int ConnectWithServer()
-		{
-			sockaddr_in SvrAddr;
+		{	sockaddr_in SvrAddr;
 			SvrAddr.sin_family = AF_INET;
 			SvrAddr.sin_port = htons(this->portNum);
-			SvrAddr.sin_addr.s_addr = inet_addr("127.0.0.1"); //change IP address
+			SvrAddr.sin_addr.s_addr = inet_addr("172.16.5.12");
 
 			int Connection = connect(this->ClientSocket, (struct sockaddr *)&SvrAddr, sizeof(SvrAddr));
 			if (Connection == -1)
@@ -79,57 +134,17 @@ using namespace std;
 
 	};
 
-	class Account: public myClient
-	{
-	  private:
-		 string username;
-		 string password;
-	  public:
-		Account(const char* name, const char* password, int x = 0) : myClient(x)
-		{
-			string myUsername = setUsername(name);
-			cout << myUsername << endl; //testing
-			string myPassword = setPassword(password);
-			cout << myPassword << endl; //testing
-		}
-
-		Account()
-		{
-			username = "Enter your name here....";
-			password = "Enter your password here...";
-		}
-
-		string setUsername(const char* name)
-		{
-			username = name;
-			return username;
-		}
-
-		string setPassword(const char* Password)
-		{
-			password = Password;
-			return password;
-		}
-
-		void sendLoginsToServer()
-		{
-			
-		}
-	};
 
 
 int main(void)
 {
-	myClient Clt1(30000);
-	string message = Clt1.Message("I actually love my morning hot chocolate\nIt keeps me warm and starts my day on the right track\n");
+	char name[100] = "Betty";
+	myClient Clt1(30000, name, "1234");
+	const char* message = Clt1.Message("I actually love my morning hot chocolate\nIt keeps me warm and starts my day on the right track\n");
 	cout << message << endl;
 
-	int connecting = Clt1.ConnectWithServer();
-	cout << connecting << endl;
-	
-	Account A1("Betty", "1234");
+	int Logins = Clt1.sendLoginsToServer();
 
 
 	return 0;
 }
-
