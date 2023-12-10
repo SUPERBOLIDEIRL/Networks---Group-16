@@ -155,58 +155,75 @@ using namespace std;
 
 	};
 
-void MainMenu(myClient& Clt1)
+void displayMainMenu()
 {
-	int end  = 0;
-	int choice;
-        string author, topic; 
-        string token = "POST_SINGLE";
-        string message;
-	const char* newMessage;
-	char* temp;
+system("cls");
+printf("\n\n\n\n\n\n\n");
+printf("                               ********************************************************\n");
+printf("                               *                                                      *\n");
+printf("                               *            Welcome to discussion board               *\n");
+printf("                               *                                                      *\n");
+printf("                               *                  Select option:                      *\n");
+printf("                               *                                                      *\n");
+printf("                               ********************************************************\n");
+printf("                               *                                                      *\n");
+printf("                               *    1.  Write a single post to discussion board       *\n");
+printf("                               *    2.  Write multiple posts to discussion board      *\n");
+printf("                               *    3.  Display all posts from discussion board       *\n");
+printf("                               *    4.  Display list of filtered posts                *\n");
+printf("                               *                                                      *\n");
+printf("                               *    0.  EXIT                                          *\n");
+printf("                               *                                                      *\n");
+printf("                               ********************************************************\n");
+}
 
-	while (end = 0) {
-		cout << "\n==== Main Menu ====\n";
-		cout << "1. Write a single post to the discussion board\n";
-		cout << "2. Write multiple posts to the discussion board\n";
-		cout << "3. See all posts on the board\n";
-		cout << "4. Sort posts (filter posts)\n";
-		cout << "0. Exit\n";
-		cout << "Enter your choice\n";
-		cin.ignore();
 
-		switch(choice) {
-		case 1:
-			cout << "Enter author: ";
-			getline(cin, author);
-			author.erase(remove_if(author.begin(), author.end(), ::isspace), author.end());
+void MainMenu(myClient& Clt1) {
+    int end = 0;
+    int choice;
+    string author, topic, message;
+    const char* newMessage;
 
-			cout << "Enter topic: ";
-			getline(cin, topic);
-			topic.erase(remove_if(topic.begin(), topic.end(), ::isspace), topic.end());
-			std:transform(topic.begin(), topic.end(), ::toupper);
+    // Allocate memory for temp
+    char temp[1024] = {0}; // Ensure enough space for the concatenated message
 
-			cout << "Enter post: ";
-			getline(cin, message);
+    while (end == 0) { // Correct the equality check
+	displayMainMenu
+        switch (choice) {
+            case 1:
+                cout << "Enter author: ";
+                cin >> author;
 
-			newMessage = token + "|" + author + "|" + topic + "|" + message;
-			strcpy(temp, newMessage);
-			Clt1.PostMessage(temp);
-			break;
-		case 2:
-			//multiple post logic here
-			break;
-		case 3:
-			//get posts from server and print;
-			break;
-		case 4:
-			//Introduce filter
-			break;
-		case 0:
-			end = 1;
-			break;
-		}
-	}
+                cout << "Enter topic: ";
+                cin >> topic;
+
+                cout << "Enter post: ";
+                cin.ignore(); // Consume the newline character left in the buffer
+                getline(cin, message);
+
+                // Construct the message in the required format
+                newMessage = ("POST_SINGLE|" + author + "|" + topic + "|" + message).c_str();
+                strcpy(temp, newMessage);
+
+                Clt1.PostMessage(temp);
+                break;
+            case 2:
+                // Multiple post logic here
+                break;
+            case 3:
+                // Get posts from the server and print;
+                break;
+            case 4:
+                // Introduce filter
+                break;
+            case 0:
+                end = 1;
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                break;
+        }
+    }
 }
 
 int main(void)
