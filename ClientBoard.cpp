@@ -187,8 +187,8 @@ void MainMenu(myClient& Clt1) {
     // Allocate memory for temp
     char temp[1024] = {0}; // Ensure enough space for the concatenated message
 
-    while (end == 0) { // Correct the equality check
-	displayMainMenu
+    while (end == 0) {
+	displayMainMenu();
         switch (choice) {
             case 1:
                 cout << "Enter author: ";
